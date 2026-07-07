@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Una pequeña playlist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root{
+  --ink:#f4f2ec;
+  --dim:#9b978c;
+  --panel: rgba(10,10,12,0.55);
+  --accent:#ffd23f;
+  --scene-accent:#ffd23f;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{
+  height:100%;
+  background:#0a0a0c;
+  font-family:'Space Grotesk', sans-serif;
+  color:var(--ink);
+  overflow:hidden;
+}
+#stage{
+  position:relative;
+  width:100%;
+  height:100vh;
+  min-height:600px;
+}
+
+/* ============================================================
+   BACKGROUND SCENES
+   ============================================================ */
+.scene{
+  position:absolute; inset:0;
+  opacity:0;
+  transition:opacity 1.6s ease;
+  pointer-events:none;
+  overflow:hidden;
+}
+.scene.active{opacity:1;}
+.scene .plate{position:absolute; inset:0;}
+
+/* ---------- 1. Stressed Out — suburbio ámbar ---------- */
+.scene-stressed_out .plate{
+  background:
+    radial-gradient(ellipse at 30% 15%, rgba(255,205,120,0.28), transparent 55%),
+    linear-gradient(180deg,#2b2416 0%, #513f22 45%, #7a5a2c 100%);
+}
+.scene-stressed_out .horizon{
+  position:absolute; bottom:0; left:0; right:0; height:30%;
+  background:linear-gradient(180deg, transparent, rgba(20,14,6,0.92));
+}
+.scene-stressed_out .sun{
+  position:absolute; top:12%; left:15%; width:90px; height:90px; border-radius:50%;
+  background:radial-gradient(circle, #ffe6a8, #ffb454 70%);
+  box-shadow:0 0 60px rgba(255,180,84,0.6);
+}
+.scene-stressed_out .house{position:absolute; bottom:20%; background:#241a0c; opacity:.9;}
+.scene-stressed_out .house::after{
+  content:''; position:absolute; top:-40%; left:15%; width:70%; height:45%;
+  background:inherit; clip-path:polygon(0 100%, 50% 0, 100% 100%);
+}
+.scene-stressed_out .pole{position:absolute; bottom:20%; width:3px; background:#1a1208;}
+.scene-stressed_out .wire{position:absolute; height:1px; background:rgba(0,0,0,0.5); transform-origin:left center;}
+.bird{position:absolute; font-size:12px; opacity:.7; animation:fly linear infinite; color:#20160a;}
+@keyframes fly{ from{transform:translateX(-10vw);} to{transform:translateX(110vw);} }
+.dust-amber{position:absolute; width:3px; height:3px; border-radius:50%; background:#ffe9b0; opacity:.6; animation:drift 9s linear infinite;}
+@keyframes drift{ from{transform:translateY(0) translateX(0); opacity:0;} 10%{opacity:.7;} to{transform:translateY(-40vh) translateX(20px); opacity:0;} }
+
+/* ---------- 2. Sweater Weather — noche fría, ventana cálida ---------- */
+.scene-sweater_weather .plate{
+  background:
+    radial-gradient(ellipse at 70% 30%, rgba(255,178,120,0.10), transparent 50%),
+    linear-gradient(180deg,#141c26 0%, #1c2733 55%, #26313e 100%);
+}
+.scene-sweater_weather .window{
+  position:absolute; top:22%; right:12%; width:220px; height:280px;
+  background:linear-gradient(180deg,#ffcf94,#ff9b57);
+  box-shadow:0 0 120px rgba(255,155,87,0.35), 0 0 40px rgba(255,180,100,0.5) inset;
+  border:6px solid #0e1319;
+  opacity:.85;
+}
+.scene-sweater_weather .window::before,
+.scene-sweater_weather .window::after{
+  content:''; position:absolute; background:#0e1319;
+}
+.scene-sweater_weather .window::before{ left:50%; top:0; bottom:0; width:6px; transform:translateX(-50%); }
+.scene-sweater_weather .window::after{ top:50%; left:0; right:0; height:6px; transform:translateY(-50%); }
+.rain{position:absolute; width:1px; background:linear-gradient(180deg, transparent, rgba(200,220,255,0.35)); animation:rainfall linear infinite;}
+@keyframes rainfall{ from{transform:translateY(-20vh);} to{transform:translateY(120vh);} }
+.fog-cold{position:absolute; bottom:0; left:0; right:0; height:35%; background:linear-gradient(180deg, transparent, rgba(6,10,14,0.85));}
+
+/* ---------- 3. Daddy Issues — neón rojo, humo ---------- */
+.scene-daddy_issues .plate{
+  background:
+    radial-gradient(ellipse at 50% 25%, rgba(255,59,86,0.16), transparent 60%),
+    linear-gradient(180deg,#0d0407 0%, #1c060b 55%, #2a0a10 100%);
+}
+.neon-sign{
+  position:absolute; top:18%; left:50%; transform:translateX(-50%);
+  font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:52px; letter-spacing:2px;
+  color:#ff3b56; text-shadow:0 0 12px rgba(255,59,86,0.9), 0 0 40px rgba(255,59,86,0.6), 0 0 80px rgba(255,59,86,0.35);
+  animation:flicker 4.5s infinite;
+  opacity:.9;
+}
+@keyframes flicker{
+  0%,89%,91%,100%{opacity:.92;}
+  90%{opacity:.35;}
+  92%{opacity:.8;}
+}
+.smoke{position:absolute; bottom:0; width:120px; height:120px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%);
+  filter:blur(6px); animation:rise linear infinite;}
+@keyframes rise{ from{transform:translateY(0) scale(1); opacity:.4;} to{transform:translateY(-70vh) scale(2.2); opacity:0;} }
+.floor-sheen{position:absolute; bottom:0; left:0; right:0; height:25%;
+  background:linear-gradient(180deg, rgba(255,59,86,0.08), transparent);}
+
+/* ---------- 4. Feel So Close — grid láser nocturno ---------- */
+.scene-feel_so_close .plate{
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(51,230,255,0.18), transparent 60%),
+    linear-gradient(180deg,#070515 0%, #0c0630 55%, #150a3a 100%);
+}
+.laser-grid{
+  position:absolute; left:0; right:0; bottom:0; height:55%;
+  background-image:
+    linear-gradient(rgba(51,230,255,0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,47,224,0.25) 1px, transparent 1px);
+  background-size:100% 12%, 8% 100%;
+  transform:perspective(300px) rotateX(60deg);
+  transform-origin:bottom;
+  opacity:.55;
+}
+.city-dot{position:absolute; width:3px; height:3px; border-radius:50%; background:#33e6ff;
+  box-shadow:0 0 6px #33e6ff; animation:pulse-dot 2.4s ease-in-out infinite;}
+@keyframes pulse-dot{ 0%,100%{opacity:.3;} 50%{opacity:1;} }
+.scan-line{position:absolute; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, transparent, rgba(255,47,224,0.7), transparent);
+  animation:scan 5s linear infinite;}
+@keyframes scan{ from{top:0%;} to{top:100%;} }
+
+/* ---------- 5. Hiding in the Dark — reflector en el vacío ---------- */
+.scene-hiding_in_the_dark .plate{ background:#050507; }
+.spotlight{
+  position:absolute; top:-10%; left:50%; width:340px; height:130%;
+  transform:translateX(-50%);
+  background:linear-gradient(180deg, rgba(127,216,255,0.22), rgba(127,216,255,0.02) 60%, transparent);
+  clip-path:polygon(48% 0, 52% 0, 100% 100%, 0 100%);
+  filter:blur(2px);
+}
+.floor-glow{
+  position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+  width:340px; height:60px; border-radius:50%;
+  background:radial-gradient(ellipse, rgba(127,216,255,0.4), transparent 70%);
+}
+.motes{position:absolute; width:2px; height:2px; border-radius:50%; background:#bfeeff; opacity:.7; animation:float-mote 6s ease-in-out infinite;}
+@keyframes float-mote{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-30px);} }
+
+/* ---------- 6. Shotgun Willy — bruma de atardecer ---------- */
+.scene-shotgun_willy .plate{
+  background:linear-gradient(180deg,#2a1440 0%, #7a3b7e 45%, #ff8fc7 85%, #ffcf9e 100%);
+}
+.haze-band{position:absolute; left:-10%; right:-10%; height:14%;
+  background:rgba(255,255,255,0.08); filter:blur(10px);
+  animation:drift-haze 14s ease-in-out infinite;}
+@keyframes drift-haze{ 0%,100%{transform:translateX(0);} 50%{transform:translateX(6%);} }
+.sun-dusk{
+  position:absolute; bottom:18%; left:50%; transform:translateX(-50%);
+  width:140px; height:140px; border-radius:50%;
+  background:radial-gradient(circle, #ffe0c2, #ff8fc7 70%);
+  box-shadow:0 0 90px rgba(255,143,199,0.55);
+}
+
+/* ---------- 7. Babydoll — pastel bubblegum ---------- */
+.scene-babydoll .plate{
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(255,159,208,0.22), transparent 60%),
+    linear-gradient(180deg,#1a0e18 0%, #331525 55%, #4a1a30 100%);
+}
+.bokeh{position:absolute; border-radius:50%; background:radial-gradient(circle, rgba(255,159,208,0.55), transparent 70%);
+  animation:bob 7s ease-in-out infinite;}
+@keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-18px);} }
+.ribbon{position:absolute; border:2px solid rgba(255,159,208,0.4); border-radius:50%; opacity:.5;}
+
+/* ============================================================
+   UI CHROME
+   ============================================================ */
+#ui{
+  position:absolute; inset:0; z-index:5;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  pointer-events:none;
+}
+
+/* ---------- Frases flotantes dedicadas ---------- */
+#floating-words{
+  position:absolute; inset:0; z-index:4;
+  overflow:hidden; pointer-events:none;
+}
+.floating-word{
+  position:absolute;
+  width:min(62vw,300px);
+  text-align:center;
+  font-family:'Space Grotesk', sans-serif; font-style:italic; font-weight:500;
+  line-height:1.35;
+  color:var(--scene-accent);
+  text-shadow:0 0 18px rgba(255,255,255,0.16), 0 2px 10px rgba(0,0,0,0.55);
+  opacity:0;
+  animation-name:float-word;
+  animation-timing-function:ease-in-out;
+  animation-fill-mode:forwards;
+  will-change:transform, opacity;
+}
+@keyframes float-word{
+  0%{ opacity:0; transform:translate(0,0) scale(.92); }
+  14%{ opacity:.92; transform:translate(calc(var(--drift-x)*.2), calc(var(--rise)*.14)) scale(1); }
+  78%{ opacity:.85; }
+  100%{ opacity:0; transform:translate(var(--drift-x), var(--rise)) scale(1.02); }
+}
+
+@media (max-width:640px){
+  .floating-word{ width:min(78vw,240px); font-size:14px !important; }
+}
+
+#playlist{
+  position:absolute; top:32px; right:32px;
+  display:flex; flex-direction:column; gap:2px;
+  pointer-events:auto;
+}
+.track-row{
+  display:flex; align-items:center; gap:14px;
+  padding:9px 14px; cursor:pointer;
+  border-radius:8px;
+  transition:background .25s ease;
+}
+.track-row:hover{ background:rgba(255,255,255,0.05); }
+.track-row.active{ background:rgba(255,255,255,0.07); }
+.track-num{
+  font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--dim);
+  width:18px;
+}
+.track-row.active .track-num{ color:var(--scene-accent); }
+.track-name{ font-size:14px; color:var(--dim); transition:color .3s ease; }
+.track-row.active .track-name{ color:var(--ink); font-weight:500; }
+.track-tag{ font-family:'JetBrains Mono', monospace; font-size:9px; color:var(--dim); opacity:.5; margin-left:auto; }
+
+#panel{
+  pointer-events:auto;
+  margin:0 32px 32px 32px;
+  padding:22px 26px;
+  border-radius:16px;
+  background:var(--panel);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,0.06);
+}
+#now-playing{
+  font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:2px;
+  color:var(--scene-accent); text-transform:uppercase; margin-bottom:4px;
+  transition:color .6s ease;
+}
+#track-title{ font-size:26px; font-weight:700; margin-bottom:2px; }
+#track-tag{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--dim); margin-bottom:16px; }
+
+#scrub-row{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.time{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--dim); width:38px; }
+#scrub{
+  flex:1; position:relative; height:4px; border-radius:2px; background:rgba(255,255,255,0.12); cursor:pointer;
+}
+#scrub-fill{
+  position:absolute; left:0; top:0; bottom:0; width:0%; border-radius:2px;
+  background:var(--scene-accent); transition:background .6s ease;
+}
+#scrub-thumb{
+  position:absolute; top:50%; width:10px; height:10px; border-radius:50%;
+  background:var(--scene-accent); transform:translate(-50%,-50%); left:0%;
+  box-shadow:0 0 10px var(--scene-accent); transition:background .6s ease;
+}
+
+#controls-row{ display:flex; align-items:center; gap:18px; }
+.ctrl-btn{
+  background:none; border:none; color:var(--ink); cursor:pointer;
+  width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+  opacity:.85; transition:opacity .2s ease, transform .2s ease;
+}
+.ctrl-btn:hover{ opacity:1; transform:scale(1.08); }
+#play-btn{
+  width:44px; height:44px; border-radius:50%;
+  background:var(--scene-accent); color:#0a0a0c;
+  transition:background .6s ease;
+}
+
+#volume-row{ display:flex; align-items:center; gap:10px; margin-left:auto; width:150px; }
+#vol-icon{ opacity:.7; flex-shrink:0; }
+#volume{
+  flex:1; position:relative; height:4px; border-radius:2px; background:rgba(255,255,255,0.12); cursor:pointer;
+}
+#volume-fill{
+  position:absolute; left:0; top:0; bottom:0; width:80%; border-radius:2px;
+  background:var(--scene-accent); box-shadow:0 0 10px var(--scene-accent);
+  transition:background .6s ease, box-shadow .6s ease;
+}
+#volume-thumb{
+  position:absolute; top:50%; width:10px; height:10px; border-radius:50%;
+  background:var(--scene-accent); transform:translate(-50%,-50%); left:80%;
+  box-shadow:0 0 8px var(--scene-accent); transition:background .6s ease;
+}
+
+@media (max-width:640px){
+  #playlist{ top:16px; right:16px; }
+  .track-tag{ display:none; }
+  #panel{ margin:0 12px 12px 12px; padding:16px; }
+  #volume-row{ width:90px; }
+  #track-title{ font-size:20px; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .bird,.dust-amber,.rain,.smoke,.city-dot,.scan-line,.motes,.haze-band,.bokeh,.ribbon{ animation:none !important; }
+  .floating-word{ animation:none !important; opacity:.85 !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- 1. Stressed Out -->
+  <div class="scene scene-stressed_out" id="scene-stressed_out">
+    <div class="plate"></div>
+    <div class="sun"></div>
+    <div class="horizon"></div>
+  </div>
+
+  <!-- 2. Sweater Weather -->
+  <div class="scene scene-sweater_weather" id="scene-sweater_weather">
+    <div class="plate"></div>
+    <div class="window"></div>
+    <div class="fog-cold"></div>
+  </div>
+
+  <!-- 3. Daddy Issues -->
+  <div class="scene scene-daddy_issues" id="scene-daddy_issues">
+    <div class="plate"></div>
+    <div class="neon-sign">DADDY</div>
+    <div class="floor-sheen"></div>
+  </div>
+
+  <!-- 4. Feel So Close -->
+  <div class="scene scene-feel_so_close" id="scene-feel_so_close">
+    <div class="plate"></div>
+    <div class="laser-grid"></div>
+    <div class="scan-line"></div>
+  </div>
+
+  <!-- 5. Hiding in the Dark -->
+  <div class="scene scene-hiding_in_the_dark" id="scene-hiding_in_the_dark">
+    <div class="plate"></div>
+    <div class="spotlight"></div>
+    <div class="floor-glow"></div>
+  </div>
+
+  <!-- 6. Shotgun Willy -->
+  <div class="scene scene-shotgun_willy" id="scene-shotgun_willy">
+    <div class="plate"></div>
+    <div class="sun-dusk"></div>
+  </div>
+
+  <!-- 7. Babydoll -->
+  <div class="scene scene-babydoll" id="scene-babydoll">
+    <div class="plate"></div>
+  </div>
+
+  <div id="floating-words"></div>
+
+  <div id="ui">
+    <div id="playlist"></div>
+
+    <div id="panel">
+      <div id="now-playing">now playing</div>
+      <div id="track-title">—</div>
+      <div id="track-tag">—</div>
+
+      <div id="scrub-row">
+        <span class="time" id="time-current">0:00</span>
+        <div id="scrub">
+          <div id="scrub-fill"></div>
+          <div id="scrub-thumb"></div>
+        </div>
+        <span class="time" id="time-total">0:00</span>
+      </div>
+
+      <div id="controls-row">
+        <button class="ctrl-btn" id="prev-btn" title="Anterior">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+        <button class="ctrl-btn" id="play-btn" title="Reproducir">
+          <svg id="play-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button class="ctrl-btn" id="next-btn" title="Siguiente">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z"/></svg>
+        </button>
+
+        <div id="volume-row">
+          <svg id="vol-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          <div id="volume">
+            <div id="volume-fill"></div>
+            <div id="volume-thumb"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<audio id="audio" preload="metadata"></audio>
+
+<script>
+const TRACKS = [
+  { id:'stressed_out',      file:'stressed_out.mp3',      title:'Stressed Out',       tag:'amber suburbio / postes y polvo',   accent:'#ffd23f' },
+  { id:'sweater_weather',   file:'sweater_weather.mp3',   title:'Sweater Weather',    tag:'noche fría, ventana cálida',        accent:'#ff9b57' },
+  { id:'daddy_issues',      file:'daddy_issues.mp3',      title:'Daddy Issues',       tag:'neón rojo y humo',                  accent:'#ff3b56' },
+  { id:'feel_so_close',     file:'feel_so_close.mp3',     title:'Feel So Close',      tag:'grid láser / ciudad nocturna',       accent:'#33e6ff' },
+  { id:'hiding_in_the_dark',file:'hiding_in_the_dark.mp3',title:'Hiding in the Dark', tag:'un reflector en el vacío',           accent:'#7fd8ff' },
+  { id:'shotgun_willy',     file:'shotgun_willy.mp3',     title:'Shotgun Willy',      tag:'bruma de atardecer',                accent:'#ff8fc7' },
+  { id:'babydoll',          file:'babydoll.mp3',          title:'Babydoll',           tag:'bubblegum pastel',                  accent:'#ff9fd0' },
+];
+
+const PHRASES = {
+  stressed_out: [
+    "Contigo, hasta el caos se convierte en hogar, Rocío.",
+    "Eres la calma que encuentro en medio del ruido, Rocío.",
+    "Ningún atardecer es tan bonito como tu sonrisa, Rocío.",
+    "Rocío, eres mi lugar seguro cuando todo se complica.",
+    "Contigo, hasta crecer duele menos, Rocío.",
+    "Después de un día difícil, tú eres mi descanso, Rocío.",
+    "No importa el polvo del camino si al final estás tú, Rocío.",
+    "Contigo, hasta este barrio se siente distinto, Rocío.",
+    "Tienes el don de hacer ligero lo que pesa, Rocío.",
+    "Ni el estrés del mundo entero apaga tu luz, Rocío.",
+    "Contigo aprendí que el hogar no es un lugar, es una persona, Rocío.",
+    "Cada calle de este barrio me lleva de vuelta a ti, Rocío.",
+    "Contigo, hasta el desorden encuentra su lugar, Rocío.",
+    "Eres el respiro que necesito en medio del caos, Rocío.",
+    "No necesito escapar de nada teniéndote a ti, Rocío.",
+    "Eres mi versión favorita de la calma, Rocío.",
+    "Contigo, hasta los días grises se visten de dorado, Rocío.",
+    "Gracias por ser mi refugio sin que tuviera que pedirlo, Rocío.",
+    "El polvo se levanta y se va, pero tú te quedas siempre, Rocío.",
+    "Contigo, hasta el estrés se vuelve un poco más dulce, Rocío.",
+    "Cada pájaro que cruza el cielo me recuerda que pienso en ti, Rocío.",
+    "Eres la paz que busco al final de cada día, Rocío.",
+    "A tu lado, todo pesa un poco menos, Rocío.",
+    "Mi hogar no tiene dirección, tiene tu nombre, Rocío.",
+    "No hay nada que un abrazo tuyo no pueda arreglar, Rocío.",
+    "With you, even chaos feels like home, Rocío.",
+    "In all this noise, you are my calm, Rocío.",
+    "No sunset competes with your smile, Rocío.",
+    "Rocío, you are my safe place when things get hard.",
+    "With you, even growing up feels less scary, Rocío.",
+    "You are the calm after a rough day, Rocío.",
+    "The dust on the road does not matter if I am walking to you, Rocío.",
+    "With you, the whole neighborhood feels different, Rocío.",
+    "Rocío, you make heavy afternoons feel light.",
+    "Not even the world's stress can dim your light, Rocío.",
+    "With you I learned home is a person, Rocío.",
+    "Every wire and pole reminds me I am heading toward you, Rocío.",
+    "With you, the chaos makes sense, Rocío.",
+    "Rocío, you are my breath of fresh air in the mess.",
+    "I do not need to run from anything with you here, Rocío.",
+    "You are my favorite version of calm, Rocío.",
+    "Even gray days feel golden with you, Rocío.",
+    "Thank you for being my shelter without me asking, Rocío.",
+    "The dust settles, but you always stay, Rocío.",
+    "With you, stress becomes bearable, Rocío.",
+    "Every bird crossing the sky reminds me of you, Rocío.",
+    "You are the peace I look for at the end of the day, Rocío.",
+    "Everything weighs less with you, Rocío.",
+    "My home is not a place, it is you, Rocío.",
+    "Nothing stresses me that your hug cannot fix, Rocío."
+  ],
+  sweater_weather: [
+    "El frío es solo una excusa para abrazarte más fuerte, Rocío.",
+    "Eres la luz cálida en mis noches más frías, Rocío.",
+    "Quiero envolverme en ti como en mi suéter favorito, Rocío.",
+    "Contigo, hasta la lluvia suena a canción de amor, Rocío.",
+    "Eres el lugar donde siempre quiero quedarme, Rocío.",
+    "No hay frío que tus abrazos no sepan calentar, Rocío.",
+    "Contigo, cada noche fría se siente como estar en casa, Rocío.",
+    "La ventana empañada no es nada comparada con tu calidez, Rocío.",
+    "Contigo, el invierno se volvió mi estación favorita, Rocío.",
+    "Tus abrazos son el suéter que nunca quiero quitarme, Rocío.",
+    "Cada gota de lluvia me recuerda las ganas que tengo de verte, Rocío.",
+    "Contigo, hasta las noches más largas se sienten cortas, Rocío.",
+    "Eres la manta que siempre quiero tener encima, Rocío.",
+    "No necesito calefacción teniéndote a ti cerca, Rocío.",
+    "Contigo, el silencio de la lluvia se siente acompañado, Rocío.",
+    "Quiero quedarme en tus brazos hasta que se me olvide el frío, Rocío.",
+    "Contigo, hasta las tardes nubladas tienen su encanto, Rocío.",
+    "Eres mi refugio favorito en las noches frías, Rocío.",
+    "Ni el vaho en la ventana es tan cálido como tú, Rocío.",
+    "Contigo, hasta temblar de frío sabe a cariño, Rocío.",
+    "Quiero ser tu abrigo en los días difíciles, Rocío.",
+    "A tu lado, el clima ya no me importa, Rocío.",
+    "Eres mi estación favorita de todo el año, Rocío.",
+    "No hay tormenta que resista un abrazo tuyo, Rocío.",
+    "Contigo, cada noche se siente como llegar a casa, Rocío.",
+    "The cold is just an excuse to hold you closer, Rocío.",
+    "You are the warm light on my coldest nights, Rocío.",
+    "I want to wrap myself in you like a sweater, Rocío.",
+    "With you, even the rain sounds like a love song, Rocío.",
+    "Rocío, you are my favorite place to stay.",
+    "There is no cold your hugs cannot warm up, Rocío.",
+    "With you, every cold night feels like home, Rocío.",
+    "The foggy window reminds me of your warmth, Rocío.",
+    "With you, winter becomes my favorite season, Rocío.",
+    "Rocío, your hugs are my favorite sweater.",
+    "Every raindrop reminds me I want to see you, Rocío.",
+    "With you, even long nights feel short, Rocío.",
+    "Rocío, you are the blanket I always want on me.",
+    "I do not need heating if you are here, Rocío.",
+    "With you, even the sound of rain feels like company, Rocío.",
+    "I want to stay in your arms until the cold passes, Rocío.",
+    "With you, every cloudy afternoon has its charm, Rocío.",
+    "Rocío, you are my shelter on cold nights.",
+    "The fog on the window is nothing next to your warmth, Rocío.",
+    "With you, even shivering feels okay, Rocío.",
+    "I want to be your coat on the hard days, Rocío.",
+    "With you, the weather does not matter anymore, Rocío.",
+    "Rocío, you are my favorite season of the year.",
+    "No storm can withstand your hug, Rocío.",
+    "With you, every night feels like being home, Rocío."
+  ],
+  daddy_issues: [
+    "Tú enciendes cada rincón de mi mundo, Rocío.",
+    "Ningún neón brilla tanto como tú, Rocío.",
+    "Contigo, todo se siente intenso y hermoso, Rocío.",
+    "Eres el fuego que nunca quiero apagar, Rocío.",
+    "Contigo, hasta lo caótico se siente bien, Rocío.",
+    "Tu mirada quema más fuerte que cualquier neón, Rocío.",
+    "Ningún humo esconde lo que siento por ti, Rocío.",
+    "Contigo, cada noche se siente eléctrica, Rocío.",
+    "Eres la chispa que enciende mis días, Rocío.",
+    "Ningún rojo de neón compite con el color de tus mejillas, Rocío.",
+    "Contigo, el peligro se siente como una aventura, Rocío.",
+    "Eres mi obsesión más bonita, Rocío.",
+    "No sé si es el humo o eres tú, pero me pierdo igual, Rocío.",
+    "Contigo, lo intenso se convirtió en mi lugar favorito, Rocío.",
+    "Tú le prendes fuego a mi calma, Rocío.",
+    "Cada letrero de neón me recuerda tu brillo, Rocío.",
+    "Contigo, hasta el caos se ve hermoso, Rocío.",
+    "Eres la llama que no quiero apagar, Rocío.",
+    "Nada es tan magnético como tu presencia, Rocío.",
+    "Contigo, cada excusa se convierte en ganas de verte, Rocío.",
+    "Eres mi vicio más bonito, Rocío.",
+    "El humo se disuelve, pero tú te quedas siempre, Rocío.",
+    "Contigo, lo prohibido se siente como destino, Rocío.",
+    "Eres el incendio que quiero sentir para siempre, Rocío.",
+    "Ninguna luz artificial le gana a tu sonrisa, Rocío.",
+    "You light up every corner of my world, Rocío.",
+    "No neon light shines brighter than you, Rocío.",
+    "With you everything feels intense and beautiful, Rocío.",
+    "You are the fire I never want to put out, Rocío.",
+    "With you, even the chaos feels good, Rocío.",
+    "Your gaze burns brighter than any neon sign, Rocío.",
+    "No smoke can hide what I feel for you, Rocío.",
+    "With you, every night feels electric, Rocío.",
+    "Rocío, you are the spark that lights up my days.",
+    "Neon red cannot compete with the color in your cheeks, Rocío.",
+    "With you, danger feels like an adventure, Rocío.",
+    "Rocío, you are my favorite obsession.",
+    "I do not know if it is the smoke or you, but I still get dizzy, Rocío.",
+    "With you, intensity becomes my favorite place, Rocío.",
+    "Rocío, you set fire to my calm.",
+    "Every neon sign reminds me of your glow, Rocío.",
+    "With you, even chaos looks beautiful, Rocío.",
+    "Rocío, you are the flame I do not want to blow out.",
+    "Nothing is more magnetic than your presence, Rocío.",
+    "With you, every excuse turns into wanting to see you, Rocío.",
+    "Rocío, you are my prettiest addiction.",
+    "The smoke fades, but you always stay, Rocío.",
+    "With you, forbidden feels like fate, Rocío.",
+    "Rocío, you are the wildfire I want to feel.",
+    "No artificial light beats your smile, Rocío."
+  ],
+  feel_so_close: [
+    "Aunque estés lejos, te siento tan cerca, Rocío.",
+    "Contigo, cada distancia se hace pequeña, Rocío.",
+    "En cada latido te siento cerca de mí, Rocío.",
+    "No importa el ruido de la ciudad, solo pienso en ti, Rocío.",
+    "Siempre estás más cerca de lo que crees, Rocío.",
+    "Ninguna luz de la ciudad brilla tanto como pensar en ti, Rocío.",
+    "Contigo, la distancia es solo un número, Rocío.",
+    "Te siento cerca incluso en el silencio, Rocío.",
+    "Cada kilómetro se acorta cuando pienso en ti, Rocío.",
+    "Mi mente siempre encuentra el camino de vuelta a ti, Rocío.",
+    "No hay ciudad tan grande que logre alejarme de ti, Rocío.",
+    "Cerca o lejos, contigo siempre es igual de bonito, Rocío.",
+    "Eres la señal que siempre encuentro, Rocío.",
+    "Entre tantas luces, solo busco las tuyas, Rocío.",
+    "Contigo, el tiempo pasa distinto, Rocío.",
+    "Aunque no te vea, te siento a mi lado, Rocío.",
+    "La ciudad se mueve rápido, pero mis pensamientos siempre van hacia ti, Rocío.",
+    "Contigo, la conexión no necesita distancia, Rocío.",
+    "Nada me conecta tanto contigo como pensarte, Rocío.",
+    "Contigo, hasta la lejanía se siente cercana, Rocío.",
+    "Cada luz nocturna me recuerda tu brillo, Rocío.",
+    "Aunque estemos lejos, seguimos siendo nosotros, Rocío.",
+    "Siempre estás en el centro de mis pensamientos, Rocío.",
+    "No necesito estar cerca para sentirte mía, Rocío.",
+    "Te pienso tanto que la distancia deja de existir, Rocío.",
+    "Even far away, I feel you so close, Rocío.",
+    "With you, every distance feels small, Rocío.",
+    "In every heartbeat, I feel you near, Rocío.",
+    "No matter the city noise, I only think of you, Rocío.",
+    "Rocío, you are always closer than you think.",
+    "City lights do not shine as bright as thinking of you, Rocío.",
+    "With you, distance is just a number, Rocío.",
+    "Rocío, I feel you close even in silence.",
+    "Every mile feels shorter when I think of you, Rocío.",
+    "Rocío, my mind always finds its way to you.",
+    "No city is big enough to keep me from you, Rocío.",
+    "Close or far, it is always just as beautiful with you, Rocío.",
+    "Rocío, you are the signal I always find.",
+    "Among so many lights, I only search for yours, Rocío.",
+    "Time moves differently with you, Rocío.",
+    "Rocío, even when I cannot see you, I feel you beside me.",
+    "The city moves fast, but my thoughts always head to you, Rocío.",
+    "With you, connection needs no distance, Rocío.",
+    "Rocío, you are my fixed point in all the motion.",
+    "No signal connects like thinking of you, Rocío.",
+    "With you, even distance feels close, Rocío.",
+    "Every night light reminds me of your glow, Rocío.",
+    "Even far apart, we are still us, Rocío.",
+    "Rocío, you are always at the center of my thoughts.",
+    "I do not need to be close to feel you are mine, Rocío."
+  ],
+  hiding_in_the_dark: [
+    "En la oscuridad, tú eres mi único reflector, Rocío.",
+    "Contigo, hasta lo oscuro se vuelve bonito, Rocío.",
+    "Iluminas los lugares donde nadie más llega, Rocío.",
+    "Contigo nunca estoy realmente solo, Rocío.",
+    "Eres la luz que siempre encuentro, Rocío.",
+    "Ninguna sombra resiste tu presencia, Rocío.",
+    "Contigo, el silencio se siente acompañado, Rocío.",
+    "Aunque todo esté oscuro, tú siempre brillas, Rocío.",
+    "Eres la luz que me encuentra hasta en los días grises, Rocío.",
+    "No necesito más luz teniéndote cerca, Rocío.",
+    "Contigo, hasta el vacío se siente lleno, Rocío.",
+    "Apareces justo cuando más te necesito, Rocío.",
+    "En medio de la nada, siempre te encuentro a ti, Rocío.",
+    "Contigo, hasta la soledad se siente distinta, Rocío.",
+    "Ninguna oscuridad apaga lo que siento por ti, Rocío.",
+    "Eres mi luz constante, Rocío.",
+    "Contigo, el miedo se convierte en calma, Rocío.",
+    "Brillas incluso cuando no te das cuenta, Rocío.",
+    "No importa cuán oscuro sea el día, pienso en ti, Rocío.",
+    "Eres la claridad en medio de la duda, Rocío.",
+    "Contigo, encontrar el camino siempre es más fácil, Rocío.",
+    "Tu luz llega hasta donde nadie más llega, Rocío.",
+    "Ni el apagón más largo borraría lo que siento por ti, Rocío.",
+    "Contigo, hasta perderme se siente seguro, Rocío.",
+    "Siempre eres la luz al final de mi día, Rocío.",
+    "In the dark, you are my only spotlight, Rocío.",
+    "With you, even the dark becomes beautiful, Rocío.",
+    "You light up places no one else reaches, Rocío.",
+    "With you, I am never really alone, Rocío.",
+    "Rocío, you are the light I always find.",
+    "No shadow can dim your presence, Rocío.",
+    "With you, even silence feels like company, Rocío.",
+    "Even when everything is dark, you always shine, Rocío.",
+    "Rocío, you are my personal spotlight on gray days.",
+    "I do not need light if you are near, Rocío.",
+    "With you, even emptiness feels full, Rocío.",
+    "Rocío, you show up right when I need you most.",
+    "In the middle of nowhere, I always find you, Rocío.",
+    "With you, even loneliness feels different, Rocío.",
+    "No darkness can put out what I feel for you, Rocío.",
+    "Rocío, you are my constant light.",
+    "With you, fear turns into calm, Rocío.",
+    "Rocío, you shine even when you do not notice it.",
+    "No matter how dark the day, I think of you, Rocío.",
+    "Rocío, you are the clarity in the middle of doubt.",
+    "With you, finding the way is always easier, Rocío.",
+    "Rocío, your light reaches where no one else does.",
+    "No blackout can erase what I feel for you, Rocío.",
+    "With you, even getting lost feels safe, Rocío.",
+    "You are always the light at the end of my day, Rocío."
+  ],
+  shotgun_willy: [
+    "Eres mi atardecer favorito, Rocío.",
+    "Contigo, los colores del cielo se ven más bonitos, Rocío.",
+    "Cada bruma de la tarde me recuerda a ti, Rocío.",
+    "Eres el final feliz que quiero cada día, Rocío.",
+    "Contigo, hasta el cielo se pone más lindo, Rocío.",
+    "No hay atardecer que no me recuerde a ti, Rocío.",
+    "Contigo, cada viaje se siente como una aventura, Rocío.",
+    "Eres mi horizonte favorito, Rocío.",
+    "Los colores rosados del cielo tienen tu nombre, Rocío.",
+    "Contigo, el camino siempre se siente más corto, Rocío.",
+    "Quiero ver mil atardeceres más a tu lado, Rocío.",
+    "Ningún lugar se ve mejor que contigo al lado, Rocío.",
+    "Contigo, el final de cada día se siente ligero, Rocío.",
+    "El sol se esconde, pero tú siempre iluminas, Rocío.",
+    "Eres mi lugar feliz, Rocío.",
+    "Contigo, hasta las despedidas del día se sienten bonitas, Rocío.",
+    "Quiero que cada atardecer te encuentre a mi lado, Rocío.",
+    "Ninguna bruma opaca lo bonito que es estar contigo, Rocío.",
+    "Contigo, el mundo se siente más libre, Rocío.",
+    "Cada tarde que cae me recuerda las ganas que tengo de verte, Rocío.",
+    "Eres mi paisaje favorito, Rocío.",
+    "Contigo no necesito destino, solo el camino, Rocío.",
+    "Eres el color más bonito del cielo, Rocío.",
+    "Ningún atardecer es tan lindo como tu sonrisa, Rocío.",
+    "Contigo, cada día termina bien, Rocío.",
+    "You are my favorite sunset, Rocío.",
+    "With you, the sky's colors look more beautiful, Rocío.",
+    "Every evening haze reminds me of you, Rocío.",
+    "You are the happy ending I want every day, Rocío.",
+    "With you, even the sky looks prettier, Rocío.",
+    "Rocío, every sunset reminds me of you.",
+    "With you, every trip feels like an adventure, Rocío.",
+    "Rocío, you are my favorite horizon.",
+    "The pink in the sky has your name on it, Rocío.",
+    "With you, the road always feels shorter, Rocío.",
+    "Rocío, I want to watch a thousand more sunsets with you.",
+    "No place looks better than it does with you beside me, Rocío.",
+    "With you, every end of the day feels lighter, Rocío.",
+    "The sun sets, but you always shine, Rocío.",
+    "Rocío, you are my happy place.",
+    "With you, even the day's goodbyes feel beautiful, Rocío.",
+    "Rocío, I want every sunset to find you by my side.",
+    "No haze can dull how beautiful it is to be with you, Rocío.",
+    "With you, the world feels more free, Rocío.",
+    "Every falling evening reminds me I want to see you, Rocío.",
+    "Rocío, you are my favorite scenery.",
+    "With you I do not need a destination, just the road, Rocío.",
+    "Rocío, you are the prettiest color in the sky.",
+    "No sunset is as beautiful as your smile, Rocío.",
+    "With you, every day ends well, Rocío."
+  ],
+  babydoll: [
+    "Eres dulce como el algodón de azúcar, Rocío.",
+    "Contigo, todo se siente tierno y bonito, Rocío.",
+    "Eres mi babydoll, mi persona favorita, Rocío.",
+    "Contigo, hasta lo simple se vuelve mágico, Rocío.",
+    "Eres mi dulce favorito, Rocío.",
+    "Ningún caramelo es tan dulce como tu sonrisa, Rocío.",
+    "Contigo, todo se ve en rosa, Rocío.",
+    "Contigo, hasta un día normal se siente especial, Rocío.",
+    "Eres la ternura hecha persona, Rocío.",
+    "Nada es tan lindo como verte sonreír, Rocío.",
+    "Contigo, el mundo se siente más suave, Rocío.",
+    "Cada abrazo tuyo se siente como un regalo, Rocío.",
+    "Eres mi persona favorita para consentir, Rocío.",
+    "Nada es tan tierno como tú, Rocío.",
+    "Contigo, hasta lo pequeño se siente enorme, Rocío.",
+    "Contigo, cada detalle se siente más bonito, Rocío.",
+    "Eres mi versión favorita de dulce, Rocío.",
+    "No necesito más azúcar si te tengo a ti, Rocío.",
+    "Contigo, hasta la risa sabe distinta, Rocío.",
+    "Eres tierna hasta en los detalles más pequeños, Rocío.",
+    "Nada se compara con tu ternura, Rocío.",
+    "Contigo quiero consentirte todos los días, Rocío.",
+    "Cada momento contigo se siente como un cuento bonito, Rocío.",
+    "Eres mi persona favorita, sin excepciones, Rocío.",
+    "Contigo, hasta lo cotidiano se siente especial, Rocío.",
+    "You are sweet like cotton candy, Rocío.",
+    "With you, everything feels soft and lovely, Rocío.",
+    "Rocío, my babydoll, my favorite person.",
+    "With you, even simple things become magic, Rocío.",
+    "Rocío, you are my favorite sweet.",
+    "No candy is as sweet as your smile, Rocío.",
+    "With you, everything looks pink, Rocío.",
+    "With you, even a normal day feels special, Rocío.",
+    "Rocío, you are tenderness in human form.",
+    "Nothing is prettier than seeing you smile, Rocío.",
+    "With you, the world feels softer, Rocío.",
+    "With you, every hug feels like a gift, Rocío.",
+    "Rocío, you are my favorite person to spoil.",
+    "Nothing is as tender as you, Rocío.",
+    "With you, even small things feel huge, Rocío.",
+    "With you, every little detail feels prettier, Rocío.",
+    "Rocío, you are my favorite kind of sweet.",
+    "I do not need more sugar with you around, Rocío.",
+    "With you, everything feels softer and lovelier, Rocío.",
+    "With you, even laughing feels different, Rocío.",
+    "Rocío, you are tender down to the smallest details.",
+    "Nothing compares to your tenderness, Rocío.",
+    "Rocío, I want to spoil you every day.",
+    "With you, every moment feels like a sweet story, Rocío.",
+    "Rocío, you are my favorite person, no exceptions."
+  ]
+};
+
+const audio       = document.getElementById('audio');
+const playlistEl  = document.getElementById('playlist');
+const titleEl     = document.getElementById('track-title');
+const tagEl       = document.getElementById('track-tag');
+const timeCurEl   = document.getElementById('time-current');
+const timeTotEl   = document.getElementById('time-total');
+const scrub       = document.getElementById('scrub');
+const scrubFill   = document.getElementById('scrub-fill');
+const scrubThumb  = document.getElementById('scrub-thumb');
+const volume      = document.getElementById('volume');
+const volFill     = document.getElementById('volume-fill');
+const volThumb    = document.getElementById('volume-thumb');
+const playBtn     = document.getElementById('play-btn');
+const playIcon    = document.getElementById('play-icon');
+const root        = document.documentElement;
+const floatWordsEl= document.getElementById('floating-words');
+
+let current = 0;
+let vol = 0.8;
+let scrubbing = false;
+let spawnTimer = null;
+let recentPhrases = [];
+
+function rand(a,b){ return a + Math.random()*(b-a); }
+
+function pickPhrase(list){
+  let idx;
+  do{ idx = Math.floor(Math.random()*list.length); }
+  while(list.length>3 && recentPhrases.includes(idx));
+  recentPhrases.push(idx);
+  if(recentPhrases.length>3) recentPhrases.shift();
+  return list[idx];
+}
+
+function spawnFloatingWord(list){
+  if(!list || !list.length) return;
+  if(floatWordsEl.children.length >= 7) return;
+
+  const el = document.createElement('div');
+  el.className = 'floating-word';
+  el.textContent = pickPhrase(list);
+
+  const left = rand(4, 78);
+  const bottom = rand(4, 62);
+  const size = rand(13, 24);
+  const duration = rand(8, 14);
+  const driftX = rand(-60, 60);
+  const rise = -rand(28, 46);
+
+  el.style.left = left + '%';
+  el.style.bottom = bottom + '%';
+  el.style.fontSize = size + 'px';
+  el.style.setProperty('--drift-x', driftX + 'px');
+  el.style.setProperty('--rise', rise + 'vh');
+  el.style.animationDuration = duration + 's';
+
+  el.addEventListener('animationend', ()=> el.remove());
+  floatWordsEl.appendChild(el);
+}
+
+function startFloatingWords(trackId){
+  clearInterval(spawnTimer);
+  recentPhrases = [];
+  const list = PHRASES[trackId] || [];
+  if(!list.length) return;
+
+  spawnFloatingWord(list);
+  setTimeout(()=> spawnFloatingWord(list), rand(500,1200));
+
+  spawnTimer = setInterval(()=>{
+    spawnFloatingWord(list);
+  }, rand(1400, 2200));
+}
+
+function fmt(s){
+  if(!isFinite(s)) return '0:00';
+  const m = Math.floor(s/60);
+  const sec = Math.floor(s%60).toString().padStart(2,'0');
+  return `${m}:${sec}`;
+}
+
+function buildPlaylist(){
+  TRACKS.forEach((t,i)=>{
+    const row = document.createElement('div');
+    row.className = 'track-row';
+    row.dataset.index = i;
+    row.innerHTML = `<span class="track-num">${String(i+1).padStart(2,'0')}</span><span class="track-name">${t.title}</span><span class="track-tag">${t.tag}</span>`;
+    row.addEventListener('click', ()=> loadTrack(i, true));
+    playlistEl.appendChild(row);
+  });
+}
+
+function setActiveScene(i){
+  document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
+  document.getElementById('scene-'+TRACKS[i].id).classList.add('active');
+  document.querySelectorAll('.track-row').forEach(r=>r.classList.remove('active'));
+  playlistEl.children[i].classList.add('active');
+}
+
+function loadTrack(i, autoplay){
+  current = i;
+  const t = TRACKS[i];
+  audio.src = './' + t.file;
+  titleEl.textContent = t.title;
+  tagEl.textContent = t.tag;
+  root.style.setProperty('--scene-accent', t.accent);
+  setActiveScene(i);
+  startFloatingWords(t.id);
+  if(autoplay){ audio.play().catch(()=>{}); }
+}
+
+function togglePlay(){
+  if(audio.paused){ audio.play(); } else { audio.pause(); }
+}
+
+audio.addEventListener('play', ()=>{
+  playIcon.innerHTML = '<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>';
+});
+audio.addEventListener('pause', ()=>{
+  playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+});
+audio.addEventListener('ended', ()=> loadTrack((current+1)%TRACKS.length, true));
+
+audio.addEventListener('timeupdate', ()=>{
+  if(scrubbing) return;
+  const pct = audio.duration ? (audio.currentTime/audio.duration)*100 : 0;
+  scrubFill.style.width = pct+'%';
+  scrubThumb.style.left = pct+'%';
+  timeCurEl.textContent = fmt(audio.currentTime);
+});
+audio.addEventListener('loadedmetadata', ()=>{
+  timeTotEl.textContent = fmt(audio.duration);
+});
+
+function scrubTo(clientX){
+  const rect = scrub.getBoundingClientRect();
+  let pct = (clientX-rect.left)/rect.width;
+  pct = Math.max(0, Math.min(1, pct));
+  scrubFill.style.width = (pct*100)+'%';
+  scrubThumb.style.left = (pct*100)+'%';
+  if(audio.duration){ audio.currentTime = pct*audio.duration; }
+}
+scrub.addEventListener('mousedown', e=>{ scrubbing = true; scrubTo(e.clientX); });
+window.addEventListener('mousemove', e=>{ if(scrubbing) scrubTo(e.clientX); });
+window.addEventListener('mouseup', ()=> scrubbing = false);
+
+function setVolume(clientX){
+  const rect = volume.getBoundingClientRect();
+  let pct = (clientX-rect.left)/rect.width;
+  pct = Math.max(0, Math.min(1, pct));
+  vol = pct;
+  audio.volume = pct;
+  volFill.style.width = (pct*100)+'%';
+  volThumb.style.left = (pct*100)+'%';
+}
+let draggingVol = false;
+volume.addEventListener('mousedown', e=>{ draggingVol = true; setVolume(e.clientX); });
+window.addEventListener('mousemove', e=>{ if(draggingVol) setVolume(e.clientX); });
+window.addEventListener('mouseup', ()=> draggingVol = false);
+
+playBtn.addEventListener('click', togglePlay);
+document.getElementById('prev-btn').addEventListener('click', ()=> loadTrack((current-1+TRACKS.length)%TRACKS.length, true));
+document.getElementById('next-btn').addEventListener('click', ()=> loadTrack((current+1)%TRACKS.length, true));
+
+/* ---------- decorative ambience generators ---------- */
+function rand(a,b){ return a + Math.random()*(b-a); }
+
+function buildAmbience(){
+  // Stressed Out: houses, poles/wires, birds, dust
+  const so = document.getElementById('scene-stressed_out');
+  for(let i=0;i<5;i++){
+    const h = document.createElement('div');
+    h.className='house';
+    const w = rand(60,110), hh = rand(50,90);
+    h.style.width = w+'px'; h.style.height = hh+'px';
+    h.style.left = (i*20 + rand(-4,4)) + '%';
+    so.appendChild(h);
+  }
+  for(let i=0;i<4;i++){
+    const p = document.createElement('div');
+    p.className='pole';
+    p.style.left = (12 + i*24) + '%';
+    p.style.height = rand(90,140)+'px';
+    so.appendChild(p);
+    const w = document.createElement('div');
+    w.className='wire';
+    w.style.left = (12 + i*24) + '%';
+    w.style.bottom = (20 + rand(8,14)) + '%';
+    w.style.width = '26%';
+    w.style.transform = 'rotate(-4deg)';
+    so.appendChild(w);
+  }
+  for(let i=0;i<4;i++){
+    const b = document.createElement('div');
+    b.className='bird'; b.textContent='⌃';
+    b.style.top = rand(10,30)+'%';
+    b.style.animationDuration = rand(14,22)+'s';
+    b.style.animationDelay = rand(0,10)+'s';
+    so.appendChild(b);
+  }
+  for(let i=0;i<20;i++){
+    const d = document.createElement('div');
+    d.className='dust-amber';
+    d.style.left = rand(0,100)+'%';
+    d.style.bottom = rand(0,30)+'%';
+    d.style.animationDuration = rand(6,12)+'s';
+    d.style.animationDelay = rand(0,9)+'s';
+    so.appendChild(d);
+  }
+
+  // Sweater Weather: rain
+  const sw = document.getElementById('scene-sweater_weather');
+  for(let i=0;i<60;i++){
+    const r = document.createElement('div');
+    r.className='rain';
+    r.style.left = rand(0,100)+'%';
+    r.style.height = rand(40,110)+'px';
+    r.style.animationDuration = rand(0.7,1.6)+'s';
+    r.style.animationDelay = rand(0,2)+'s';
+    sw.appendChild(r);
+  }
+
+  // Daddy Issues: smoke
+  const di = document.getElementById('scene-daddy_issues');
+  for(let i=0;i<6;i++){
+    const s = document.createElement('div');
+    s.className='smoke';
+    s.style.left = rand(10,85)+'%';
+    s.style.width = s.style.height = rand(70,160)+'px';
+    s.style.animationDuration = rand(9,16)+'s';
+    s.style.animationDelay = rand(0,10)+'s';
+    di.appendChild(s);
+  }
+
+  // Feel So Close: city dots
+  const fc = document.getElementById('scene-feel_so_close');
+  for(let i=0;i<26;i++){
+    const c = document.createElement('div');
+    c.className='city-dot';
+    c.style.left = rand(0,100)+'%';
+    c.style.bottom = rand(28,60)+'%';
+    c.style.animationDelay = rand(0,3)+'s';
+    fc.appendChild(c);
+  }
+
+  // Hiding in the Dark: motes
+  const hd = document.getElementById('scene-hiding_in_the_dark');
+  for(let i=0;i<16;i++){
+    const m = document.createElement('div');
+    m.className='motes';
+    m.style.left = (40 + rand(0,20))+'%';
+    m.style.top = rand(10,80)+'%';
+    m.style.animationDuration = rand(4,8)+'s';
+    m.style.animationDelay = rand(0,6)+'s';
+    hd.appendChild(m);
+  }
+
+  // Shotgun Willy: haze bands
+  const swy = document.getElementById('scene-shotgun_willy');
+  for(let i=0;i<5;i++){
+    const hb = document.createElement('div');
+    hb.className='haze-band';
+    hb.style.top = (10 + i*18)+'%';
+    hb.style.animationDelay = rand(0,6)+'s';
+    swy.appendChild(hb);
+  }
+
+  // Babydoll: bokeh + ribbons
+  const bd = document.getElementById('scene-babydoll');
+  for(let i=0;i<14;i++){
+    const bk = document.createElement('div');
+    bk.className='bokeh';
+    const size = rand(20,70);
+    bk.style.width = bk.style.height = size+'px';
+    bk.style.left = rand(0,100)+'%';
+    bk.style.top = rand(0,100)+'%';
+    bk.style.animationDuration = rand(5,10)+'s';
+    bk.style.animationDelay = rand(0,6)+'s';
+    bd.appendChild(bk);
+  }
+  for(let i=0;i<4;i++){
+    const rb = document.createElement('div');
+    rb.className='ribbon';
+    const size = rand(120,260);
+    rb.style.width = rb.style.height = size+'px';
+    rb.style.left = rand(-10,90)+'%';
+    rb.style.top = rand(-10,80)+'%';
+    bd.appendChild(rb);
+  }
+}
+
+buildPlaylist();
+buildAmbience();
+loadTrack(0, true);
+audio.volume = vol;
+volFill.style.width = (vol*100)+'%';
+volThumb.style.left = (vol*100)+'%';
+
+/* Si el navegador bloquea el autoplay con sonido, arrancamos
+   en cuanto el usuario interactúe por primera vez con la página. */
+function tryResumeOnFirstInteraction(){
+  if(!audio.paused) return;
+  audio.play().catch(()=>{});
+}
+['click','keydown','touchstart'].forEach(evt=>{
+  window.addEventListener(evt, tryResumeOnFirstInteraction, { once:true, passive:true });
+});
+
+</script>
+</body>
+</html>
